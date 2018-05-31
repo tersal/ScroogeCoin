@@ -111,3 +111,92 @@ public class Transaction {
 			sigD[i++] = sb;
 		return sigD;
 	}
+	
+	public void addSignature(byte[] signature, int index) {
+		inputs.get(index).addSignature(signature);
+	}
+	
+	public byte[] getRawTx() {
+		ArrayList<Byte> rawTx + new ArrayList<Byte>();
+		for (Input in : inputs) {
+			byte[] prevTxHash = in.prevTxHash;
+			ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
+			b.putInt(in.outputIndex);
+			byte[] outputIndex = b.array();
+			byte[] signature = in.signature;
+			if (prevTxHash != null) 
+				for (int i = 0; i < prevTxHash.length; i++)
+					rawTx.add(prevTxHash[i]);
+			for (int i = 0; i < outputIndex.length; i++)
+				rawTx.add(outputIndex[i]);
+			if (signature != null)
+				for (int i = 0; i < signature.length; i++)
+					rawTx.add(signature[i]);				
+		}
+		
+		for (Output op : outputs) {
+			ByteBuffer b = ByteBuffer.allocate(Double.SIZE / 8);
+			b.putDouble(op.value);
+			byte[] value = b.array();
+			byte[] addressBytes = op.address.getEncoded();
+			for (int i = 0; i < value.length; i++) {
+				rawTx.add(value[i]);
+			}
+			for (int i = 0; i < addressBytes.length; i++) {
+				rawTx.add(addressBytes[i]);
+			}
+		}
+		byte[] tx = new byte[rawTx.size()];
+		int i = 0;
+		for (Byte b : rawTx)
+			tx[i++] = b;
+		return tx;
+	}
+	
+	public void finalize() {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(getRawTx());
+			hash = md.digest();
+		} catch (NoSuchAlgorithmException x){
+			x.printStackTrace(System.err);
+		}
+	}
+	
+	public void setHash(byte[] h) {
+		hash = h;
+	}
+	
+	public byte[] getHash() {
+		return hash;
+	}
+	
+	public ArrayList<Input> getInputs() {
+		return inputs;
+	}
+	
+	public ArrayList<Output> getOutputs() {
+		return outputs;
+	}
+	
+	public Input getInput(int index) {
+		if (index < inputs.size()) {
+			return inputs.get(index);
+		}
+		return null;
+	}
+	
+	public Output getOutput(int index) {
+		if (index < outputs.size()) {
+			return outputs.get(index);
+		}
+		return null;
+	}
+	
+	public int numInputs() {
+		return inputs.size();
+	}
+	
+	public int numOutputs() {
+		return outputs.size();
+	}
