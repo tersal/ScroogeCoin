@@ -1,12 +1,14 @@
 public class TxHandler {
 	
+	UTXOPool myUTXOPool;
+	
 	/**
 	 * Created a public ledger whose current UTXOPool (collection of unspent transaction outputs) is
 	 * {@code utxoPool}. This should make a copy of utxoPool by using the UTXOPool(UTXOPool uPool)
 	 * constructor.
 	 */
 	 public TxHandler(UTXOPool utxoPool) {
-		 // IMPLEMENT THIS
+		this.myUTXOPool = new UTXOPool(utxoPool);
 	 }
 	 
 	 /**
@@ -19,7 +21,32 @@ public class TxHandler {
 	 *     values; and false otherwise.
 	 */
 	 public boolean isValidTx(Transaction tx) {
-		 // IMPLEMENT THIS
+		 
+		 // Iterate all the inputs
+		 for(int i = 0; i < tx.numInputs; i++) {
+			 Transaction.Input txInput = tx.getInput(i);
+			 Transaction.Output utxoOutput;
+			 
+			 // Create an UTXO of the Input
+			 UTXO currentUTXO = new UTXO(txInput.prevTxHash, txInput.outputIndex);
+			 
+			 // (1) Check if the UTXO is contained in the current UTXOPool, return false if not
+			 if (!myUTXOPool.contains(currentUTXO)) {
+				 return false;
+			 }
+ 
+			 // (2) Check if the public key of the UTXO corresponds to the signature of the message in the input
+			 utxoOutput = myUTXOPool.getTxOutput(currentUTXO);
+			 if(!Crypto.verifySignature(utxoOutput.address, tx.getRawDataToSign(i), txInput.signature)) {
+				 return false
+			 }
+			 
+			 
+			 
+			 
+		 }
+		 
+		 
 	 }
 	 
 	 /**
