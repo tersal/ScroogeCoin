@@ -21,9 +21,12 @@ public class TxHandler {
 	 *     values; and false otherwise.
 	 */
 	 public boolean isValidTx(Transaction tx) {
+		 UTXOPool usedUTXO = new UTXOPool;
+		 double sumOutUTXO = 0;
+		 double sumOut = 0;
 		 
 		 // Iterate all the inputs
-		 for(int i = 0; i < tx.numInputs; i++) {
+		 for(int i = 0; i < tx.numInputs(); i++) {
 			 Transaction.Input txInput = tx.getInput(i);
 			 Transaction.Output utxoOutput;
 			 
@@ -41,12 +44,35 @@ public class TxHandler {
 				 return false
 			 }
 			 
+			 // (3) Check if the input was not already used, return false if used and if not, add it to te local "spent" pool
+			 if(usedUTXO.contains(currentUTXO)) {
+				 return false;
+			 }
+			 usedUTXO.addUTXO(currentUTXO, utxoOutput);
 			 
-			 
-			 
+			 // Increase the total value of the used outputs
+			 sumOutUTXO += utxoOutput.value;
 		 }
 		 
+		 // (4) Check if all the outputs of the transactions have values larger than one
+		 // and also get the total value of all
+		 for (int i = 0; i < tx.numOutputs(); i++) {
+			 Transaction.Output out = tx.getOutput(i);
+			 
+			 if (out.value < 0) {
+				 return false;
+			 }
+			 
+			 sumOut += out.value;
+		 }
 		 
+		 // (5) Validate if the sum of the UTXOs used for the inputs is larger or equal than the outputs
+		 // of this transaction
+		 if (sumOut > sumOutUTXO) {
+			 return false;
+		 }
+		 
+		 return true;
 	 }
 	 
 	 /**
