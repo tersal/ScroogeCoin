@@ -78,9 +78,31 @@ public class TxHandler {
 	 /**
 	  * Handles each epoch by receiving an unordered array of proposed transactions, checking each
 	  * transaction for correctness, returning a mutually valid array of accepted transactions, and
-	  * updating the current UTXO pool as appropiate.
+	  * updating the current UTXO pool as appropriate.
 	  */
 	  public Transaction[] handleTxs(Transaction[] possibleTxs) {
-		  // IMPLEMENT THIS
+		  ArrayList<Transaction> validTxs = new ArrayList<Transaction>():
+		  
+		  for (int i = 0; i < possibleTxs.length; i++) {
+			  if (isValidTx(possibleTxs[i])) {
+				  // If transaction is valid, then we add it to the list.
+				  validTxs.add(possibleTxs[i]);
+				  
+				  // Remove the spent outputs from the UTXO pool
+				  for (int j = 0; j < possibleTxs[i].numInputs(); j++) {
+					  Transaction.Input input = possibleTxs[i].getInput(i);
+					  UTXO spentUTXO = new UTXO(input.prevTxHash, input.outputIndex);
+					  myUTXOPool.removeUTXO(spentUTXO);
+				  }
+				  
+				  // Add new outputs from the current transaction
+				  for (int j = 0; j < possibleTxs[i].numOutputs(); j++) {
+					  Transaction.Output output = possibeTxs[i].getOutput(i);
+					  UTXO newUTXO = new UTXO(possibleTxs[i].getHash(), i);
+					  myUTXOPool.addUTXO(newUTXO, output);
+				  }
+			  }
+		  }
+		  
 	  }
 }
