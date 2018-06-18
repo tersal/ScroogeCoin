@@ -104,5 +104,9 @@ public class TxHandler {
 			  }
 		  }
 		  
+		  Transaction[] transactions = new Transaction[validTxs.size()];
+		  transactions = validTxs.toArray(transactions);
+		  
+		  return transactions;
 	  }
 }
