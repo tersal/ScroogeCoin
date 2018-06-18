@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class TxHandler {
 	
 	UTXOPool myUTXOPool;
@@ -21,7 +24,7 @@ public class TxHandler {
 	 *     values; and false otherwise.
 	 */
 	 public boolean isValidTx(Transaction tx) {
-		 UTXOPool usedUTXO = new UTXOPool;
+		 UTXOPool usedUTXO = new UTXOPool();
 		 double sumOutUTXO = 0;
 		 double sumOut = 0;
 		 
@@ -41,7 +44,7 @@ public class TxHandler {
 			 // (2) Check if the public key of the UTXO corresponds to the signature of the message in the input
 			 utxoOutput = myUTXOPool.getTxOutput(currentUTXO);
 			 if(!Crypto.verifySignature(utxoOutput.address, tx.getRawDataToSign(i), txInput.signature)) {
-				 return false
+				 return false;
 			 }
 			 
 			 // (3) Check if the input was not already used, return false if used and if not, add it to te local "spent" pool
@@ -81,7 +84,7 @@ public class TxHandler {
 	  * updating the current UTXO pool as appropriate.
 	  */
 	  public Transaction[] handleTxs(Transaction[] possibleTxs) {
-		  ArrayList<Transaction> validTxs = new ArrayList<Transaction>():
+		  ArrayList<Transaction> validTxs = new ArrayList<Transaction>();
 		  
 		  for (int i = 0; i < possibleTxs.length; i++) {
 			  if (isValidTx(possibleTxs[i])) {
@@ -90,15 +93,15 @@ public class TxHandler {
 				  
 				  // Remove the spent outputs from the UTXO pool
 				  for (int j = 0; j < possibleTxs[i].numInputs(); j++) {
-					  Transaction.Input input = possibleTxs[i].getInput(i);
+					  Transaction.Input input = possibleTxs[i].getInput(j);
 					  UTXO spentUTXO = new UTXO(input.prevTxHash, input.outputIndex);
 					  myUTXOPool.removeUTXO(spentUTXO);
 				  }
 				  
 				  // Add new outputs from the current transaction
 				  for (int j = 0; j < possibleTxs[i].numOutputs(); j++) {
-					  Transaction.Output output = possibeTxs[i].getOutput(i);
-					  UTXO newUTXO = new UTXO(possibleTxs[i].getHash(), i);
+					  Transaction.Output output = possibleTxs[i].getOutput(j);
+					  UTXO newUTXO = new UTXO(possibleTxs[i].getHash(), j);
 					  myUTXOPool.addUTXO(newUTXO, output);
 				  }
 			  }
